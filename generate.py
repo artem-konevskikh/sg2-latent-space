@@ -124,8 +124,9 @@ def generate_images(
         img = (img.permute(0, 2, 3, 1) * 127.5 + 128).clamp(0, 255).to(torch.uint8)
         PIL.Image.fromarray(img[0].cpu().numpy(), 'RGB').save(f'{outdir}/seed{seed:04d}.png')
         if vector:
-            print(z.to_array())
-
+            # print(z.to_arrayg())
+            with open(f'{outdir}/seed{seed:04d}.npy', 'wb') as f:
+                np.save(f, z.to_arrayg())
 
 
 # ----------------------------------------------------------------------------
