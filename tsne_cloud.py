@@ -35,10 +35,12 @@ def write_pointcloud(filename, xyz_points, rgb_points=None):
     """ creates a .pkl file of the point clouds generated
     """
 
-    assert xyz_points.shape[1] == 3, 'Input XYZ points should be Nx3 float array'
+    assert xyz_points.shape[1] == 3, 'Input XYZ points should be\
+          Nx3 float array'
     if rgb_points is None:
         rgb_points = np.ones(xyz_points.shape).astype(np.uint8) * 255
-    assert xyz_points.shape == rgb_points.shape, 'Input RGB colors should be Nx3 float array and have same size as input XYZ points'
+    assert xyz_points.shape == rgb_points.shape, 'Input RGB colors should be\
+          Nx3 float array and have same size as input XYZ points'
 
     # Write header of .ply file
     with open(filename, 'wb') as fid:
