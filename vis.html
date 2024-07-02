@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Grid Display</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+
+        #imageContainer {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            /* Added for positioning the loading text */
+        }
+
+        img {
+            max-width: 100%;
+            max-height: 100vh;
+            mix-blend-mode: plus-lighter;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div id="imageContainer">
+        <img id="dynamicImage" src="" alt="Hover over the page to display an image">
+    </div>
+
+    <script>
+        const gridX = 40; // Adjust based on your grid size
+        const gridY = 40; // Adjust based on your grid size
+
+        function preloadImages() {
+            for (let x = 0; x < gridX; x++) {
+                for (let y = 0; y < gridY; y++) {
+                    const img = new Image();
+                    img.src = `output/04-converted/frame${x.toString().padStart(4, '0')}_${y.toString().padStart(4, '0')}.webp`;
+                }
+            }
+        }
+
+        // Preload images when the document is ready
+        document.addEventListener('DOMContentLoaded', preloadImages);
+
+
+        // Add mousemove event listener to update the image source
+        document.addEventListener('mousemove', function (event) {
+            const image = document.getElementById('dynamicImage');
+            const maxX = window.innerWidth;
+            const maxY = window.innerHeight;
+            const x = Math.floor((event.clientX / maxX) * gridX);
+            const y = Math.floor((event.clientY / maxY) * gridY);
+            // Update the image source
+            image.src = `output/04-converted/frame${x.toString().padStart(4, '0')}_${y.toString().padStart(4, '0')}.webp`;
+            console.log(image.src);
+        });
+    </script>
+
+</body>
+
+</html>

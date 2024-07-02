@@ -3,6 +3,7 @@ import re
 from typing import List
 
 import click
+from tqdm import tqdm
 import dnnlib
 import numpy as np
 import PIL.Image
@@ -82,6 +83,22 @@ def num_range(s: str) -> List[int]:
     required=True,
     show_default=True
 )
+@click.option(
+    '--dx', 'start_num_x',
+    type=int,
+    help='Number to start counting from in x direction',
+    default=0,
+    required=True,
+    show_default=True
+)
+@click.option(
+    '--dy', 'start_num_y',
+    type=int,
+    help='Number to start counting from in y direction',
+    default=0,
+    required=True,
+    show_default=True
+)
 def interpolation_grid(
     ctx: click.Context,
     network_pkl: str,
@@ -90,6 +107,8 @@ def interpolation_grid(
     truncation_psi: float,
     num_steps_x: int,
     num_steps_y: int,
+    start_num_x: int,
+    start_num_y: int,
     noise_mode: str
 ):
     if seeds is None:
@@ -114,31 +133,34 @@ def interpolation_grid(
     )
 
 
-    for x in range(num_steps_x+1):
+    for x in tqdm(range(num_steps_x+1), desc='Interpolating X'):
         alpha = x / num_steps_x
         first_row_zs[x] = interpolate_arrays(np_zs[0], np_zs[1], alpha)
         last_row_zs[x] = interpolate_arrays(np_zs[2], np_zs[3], alpha)
         
-    for y in range(num_steps_y+1):
+    for y in tqdm(range(num_steps_y+1), desc='Interpolating Y'):
         alpha_y = y / num_steps_y
         grid_zs[y] = interpolate_arrays(
             first_row_zs,
             last_row_zs,
             alpha_y
         )
-    for y, row in enumerate(grid_zs):
-        for x, z in enumerate(row):
-            z = torch.from_numpy(z.reshape(1, 512)).to(device)
-            img = G(z, label, truncation_psi=truncation_psi,
-                    noise_mode=noise_mode)
-            img = (
-                img.permute(0, 2, 3, 1) * 127.5 + 128
-            ).clamp(0, 255).to(torch.uint8)
-            PIL.Image.fromarray(
-                img[0].cpu().numpy(), 'RGB'
-            ).save(
-                f'{outdir}/frame{x:04d}_{y:04d}.png'
-            )
+    total_steps = (num_steps_y+1) * (num_steps_x+1)
+    with tqdm(total=total_steps, desc='Generating Images') as pbar:
+        for y, row in enumerate(grid_zs):
+            for x, z in enumerate(row):
+                z = torch.from_numpy(z.reshape(1, 512)).to(device)
+                img = G(z, label, truncation_psi=truncation_psi,
+                        noise_mode=noise_mode)
+                img = (
+                    img.permute(0, 2, 3, 1) * 127.5 + 128
+                ).clamp(0, 255).to(torch.uint8)
+                PIL.Image.fromarray(
+                    img[0].cpu().numpy(), 'RGB'
+                ).save(
+                    f'{outdir}/frame{(start_num_x+x):04d}_{(start_num_y+y):04d}.png'
+                )
+                pbar.update(1)
 
 if __name__ == "__main__":
     interpolation_grid()
