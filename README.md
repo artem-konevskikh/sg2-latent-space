@@ -1,3 +1,8 @@
+*interpolation_grid.py* - generates grid of interpolated images from 4 seeds
+*vis.html* - interactive visualisation of the interpolation
+
+
+
 ## StyleGAN2-ADA &mdash; Official PyTorch implementation
 
 ![Teaser image](./docs/stylegan2-ada-teaser-1024x252.png)
