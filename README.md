@@ -1,4 +1,5 @@
 *interpolation_grid.py* - generates grid of interpolated images from 4 seeds
+
 *vis.html* - interactive visualisation of the interpolation
 
 
